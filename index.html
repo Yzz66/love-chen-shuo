@@ -328,7 +328,9 @@
   }
   function startMusic(){
   const audio = document.getElementById('bgm');
-  audio.play().catch(()=>{});
+  if (!audio) return;
+  audio.load();
+  audio.play().catch(err => console.log('播放失败:', err));
 }
 
   function start(){
