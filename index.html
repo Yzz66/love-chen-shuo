@@ -5,6 +5,31 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no" />
   <title>陈硕我爱你</title>
   <style>
+    .music-controls{
+  position:absolute;
+  top:20px;
+  right:16px;
+  z-index:20;
+  display:flex;
+  gap:10px;
+}
+
+.music-btn{
+  width:44px;
+  height:44px;
+  border:none;
+  border-radius:50%;
+  background:rgba(255,255,255,.10);
+  color:#fff;
+  font-size:20px;
+  cursor:pointer;
+  backdrop-filter:blur(8px);
+  box-shadow:0 0 12px rgba(255,120,180,.25);
+}
+
+.music-btn:active{
+  transform:scale(0.95);
+}
     :root{
       --pink:#ff79b0;
       --pink2:#ffc5dd;
@@ -111,7 +136,16 @@
   const intro = document.getElementById('intro');
   const hint = document.getElementById('hint');
   const msg = document.getElementById('message');
+  const musicList = [
+  'Angel.mp3',
+  'love2.mp3',
+  'love3.mp3'
+];
 
+let currentMusicIndex = 0;
+const audio = document.getElementById('bgm');
+const switchMusicBtn = document.getElementById('switchMusicBtn');
+const muteBtn = document.getElementById('muteBtn');
   let w=0,h=0,dpr=Math.max(1,Math.min(2,window.devicePixelRatio||1));
   let started=false, pointerDown=false;
   let rain=[], stars=[], petals=[], outline=[], halos=[], bursts=[], trails=[];
@@ -327,18 +361,37 @@
     osc.start(start); osc.stop(start+dur+.04);
   }
   function startMusic(){
-  const audio = document.getElementById('bgm');
   if (!audio) return;
-
-  audio.muted = false;
-  audio.currentTime = 0;
-
-  audio.play().then(()=>{
-    console.log("音乐已播放");
-  }).catch(err=>{
-    console.log("播放失败:", err);
+  audio.src = musicList[currentMusicIndex];
+  audio.loop = true;
+  audio.play().catch(err => {
+    console.log('播放失败:', err);
   });
 }
+  function switchMusic(){
+  if (!audio) return;
+  currentMusicIndex = (currentMusicIndex + 1) % musicList.length;
+  audio.src = musicList[currentMusicIndex];
+  audio.play().catch(err => {
+    console.log('切换失败:', err);
+  });
+}
+
+function toggleMute(){
+  if (!audio) return;
+  audio.muted = !audio.muted;
+  muteBtn.textContent = audio.muted ? '🔇' : '🔊';
+}
+
+switchMusicBtn.addEventListener('click', (e) => {
+  e.stopPropagation();
+  switchMusic();
+});
+
+muteBtn.addEventListener('click', (e) => {
+  e.stopPropagation();
+  toggleMute();
+});
 
   function start(){
     if(started) return;
@@ -380,7 +433,11 @@
   resize();
   requestAnimationFrame(animate);
 })();
+<div class="music-controls">
+  <button id="switchMusicBtn" class="music-btn" title="切换音乐">🎵</button>
+  <button id="muteBtn" class="music-btn" title="静音/取消静音">🔊</button>
+</div>
 </script>
-<audio id="bgm" src="Angel.mp3" loop preload="auto"></audio>
+<audio id="bgm" loop preload="auto"></audio>
 </body>
 </html>
