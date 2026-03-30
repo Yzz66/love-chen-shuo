@@ -1,0 +1,441 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no" />
+  <title>陈硕我爱你</title>
+  <style>
+    * { box-sizing: border-box; -webkit-tap-highlight-color: transparent; }
+    html, body {
+      margin: 0;
+      width: 100%;
+      height: 100%;
+      overflow: hidden;
+      background: #000;
+      font-family: "PingFang SC", "Microsoft YaHei", sans-serif;
+    }
+    #app {
+      position: relative;
+      width: 100%;
+      height: 100%;
+      overflow: hidden;
+      background:
+        radial-gradient(circle at 50% 45%, rgba(255, 105, 180, 0.18), rgba(0,0,0,0) 34%),
+        radial-gradient(circle at 20% 30%, rgba(255, 20, 147, 0.08), rgba(0,0,0,0) 25%),
+        radial-gradient(circle at 80% 70%, rgba(255, 182, 193, 0.10), rgba(0,0,0,0) 25%),
+        #000;
+    }
+    canvas { position: absolute; inset: 0; width: 100%; height: 100%; }
+    .glow {
+      position: absolute;
+      inset: 0;
+      pointer-events: none;
+      background: radial-gradient(circle at center, rgba(255, 182, 193, 0.08), transparent 42%);
+      filter: blur(16px);
+      animation: pulseBg 3.5s ease-in-out infinite;
+    }
+    .center-wrap {
+      position: absolute;
+      left: 50%;
+      top: 55%;
+      transform: translate(-50%, -50%);
+      text-align: center;
+      z-index: 5;
+      pointer-events: none;
+      animation: floatText 4s ease-in-out infinite;
+      width: 90vw;
+      max-width: 560px;
+    }
+    .title {
+      margin: 0;
+      color: #ffd1e6;
+      font-weight: 700;
+      letter-spacing: 0.08em;
+      text-shadow:
+        0 0 8px rgba(255,182,193,0.9),
+        0 0 18px rgba(255,105,180,0.8),
+        0 0 40px rgba(255,20,147,0.55);
+      font-size: clamp(28px, 8vw, 54px);
+    }
+    .subtitle {
+      margin-top: 14px;
+      color: rgba(255, 220, 232, 0.86);
+      font-size: clamp(12px, 3.5vw, 18px);
+      letter-spacing: 0.25em;
+      text-shadow: 0 0 12px rgba(255,182,193,0.45);
+    }
+    .hint {
+      position: absolute;
+      left: 50%;
+      bottom: 6.5vh;
+      transform: translateX(-50%);
+      z-index: 7;
+      color: rgba(255, 225, 235, 0.78);
+      font-size: 13px;
+      padding: 9px 14px;
+      border: 1px solid rgba(255, 182, 193, 0.28);
+      border-radius: 999px;
+      background: rgba(255,255,255,0.06);
+      backdrop-filter: blur(6px);
+      box-shadow: 0 0 18px rgba(255, 105, 180, 0.12);
+      animation: blink 1.8s ease-in-out infinite;
+      white-space: nowrap;
+    }
+    .badge {
+      position: absolute;
+      right: 18px;
+      bottom: 18px;
+      z-index: 8;
+      font-size: 12px;
+      color: rgba(255, 215, 228, 0.55);
+      letter-spacing: 0.15em;
+    }
+    .veil {
+      position: absolute;
+      inset: 0;
+      z-index: 10;
+      background: radial-gradient(circle at center, rgba(20,0,12,0.12), rgba(0,0,0,0.95));
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      text-align: center;
+      color: #ffd6e8;
+      transition: opacity 1.4s ease;
+      padding: 24px;
+    }
+    .veil.hide { opacity: 0; pointer-events: none; }
+    .veil-card {
+      padding: 26px 22px;
+      border-radius: 24px;
+      background: rgba(255,255,255,0.06);
+      border: 1px solid rgba(255,182,193,0.18);
+      box-shadow: 0 0 32px rgba(255, 105, 180, 0.18);
+      backdrop-filter: blur(10px);
+    }
+    .veil-title {
+      font-size: clamp(22px, 7vw, 38px);
+      margin-bottom: 10px;
+      text-shadow: 0 0 16px rgba(255,105,180,0.4);
+    }
+    .veil-text { font-size: 14px; opacity: 0.86; letter-spacing: 0.12em; }
+
+    @keyframes pulseBg {
+      0%, 100% { opacity: 0.55; transform: scale(0.98); }
+      50% { opacity: 1; transform: scale(1.03); }
+    }
+    @keyframes floatText {
+      0%, 100% { transform: translate(-50%, -50%) translateY(0); }
+      50% { transform: translate(-50%, -50%) translateY(-6px); }
+    }
+    @keyframes blink {
+      0%,100% { opacity: 0.72; }
+      50% { opacity: 1; }
+    }
+  </style>
+</head>
+<body>
+  <div id="app">
+    <canvas id="bg"></canvas>
+    <canvas id="heart"></canvas>
+    <div class="glow"></div>
+
+    <div class="center-wrap">
+      <h1 class="title">陈硕我爱你</h1>
+      <div class="subtitle">TO MY LOVE</div>
+    </div>
+
+    <div class="hint" id="hint">轻触屏幕 · 心动开始</div>
+    <div class="badge">LOVE FOREVER</div>
+
+    <div class="veil" id="veil">
+      <div class="veil-card">
+        <div class="veil-title">♡ 陈硕我爱你 ♡</div>
+        <div class="veil-text">点一下屏幕，爱心和音乐都会开始</div>
+      </div>
+    </div>
+  </div>
+
+  <script>
+    const bgCanvas = document.getElementById('bg');
+    const heartCanvas = document.getElementById('heart');
+    const bgCtx = bgCanvas.getContext('2d');
+    const heartCtx = heartCanvas.getContext('2d');
+    const veil = document.getElementById('veil');
+    const hint = document.getElementById('hint');
+
+    let w = 0, h = 0, dpr = Math.max(1, Math.min(2, window.devicePixelRatio || 1));
+    let bgSymbols = [];
+    let sparkles = [];
+    let particles = [];
+    let clicks = [];
+    let t0 = performance.now();
+    let started = false;
+
+    function resize() {
+      w = window.innerWidth;
+      h = window.innerHeight;
+      [bgCanvas, heartCanvas].forEach(c => {
+        c.width = Math.floor(w * dpr);
+        c.height = Math.floor(h * dpr);
+        c.style.width = w + 'px';
+        c.style.height = h + 'px';
+      });
+      bgCtx.setTransform(dpr,0,0,dpr,0,0);
+      heartCtx.setTransform(dpr,0,0,dpr,0,0);
+      makeSymbols();
+      buildHeartParticles();
+    }
+
+    const chars = ['L','O','V','E','U','爱','♡'];
+    function makeSymbols() {
+      bgSymbols = [];
+      const count = Math.floor((w * h) / 12000);
+      for (let i = 0; i < count; i++) {
+        bgSymbols.push({
+          x: Math.random() * w,
+          y: Math.random() * h,
+          s: 14 + Math.random() * 18,
+          a: 0.08 + Math.random() * 0.16,
+          v: 0.2 + Math.random() * 0.75,
+          c: chars[(Math.random() * chars.length) | 0],
+          drift: (Math.random() - 0.5) * 0.35
+        });
+      }
+    }
+
+    function heartPoint(theta, scale = 1) {
+      const x = 16 * Math.pow(Math.sin(theta), 3);
+      const y = 13 * Math.cos(theta) - 5 * Math.cos(2*theta) - 2 * Math.cos(3*theta) - Math.cos(4*theta);
+      return { x: x * scale, y: -y * scale };
+    }
+
+    function buildHeartParticles() {
+      particles = [];
+      const base = Math.min(w, h) * 0.018;
+      const leftCx = w * 0.34;
+      const rightCx = w * 0.66;
+      const cy = h * 0.57;
+      for (let i = 0; i < 420; i++) {
+        const theta = (i / 420) * Math.PI * 2;
+        const p = heartPoint(theta, base * 0.95);
+        particles.push(createParticle(leftCx + p.x, cy + p.y, theta, 'left'));
+      }
+      for (let i = 0; i < 420; i++) {
+        const theta = (i / 420) * Math.PI * 2;
+        const p = heartPoint(theta, base * 0.95);
+        particles.push(createParticle(rightCx + p.x, cy + p.y, theta, 'right'));
+      }
+      for (let i = 0; i < 120; i++) {
+        sparkles.push({
+          x: Math.random()*w,
+          y: Math.random()*h,
+          r: Math.random()*1.6 + 0.3,
+          a: Math.random()*0.6,
+          tw: Math.random()*Math.PI*2,
+          v: 0.01 + Math.random()*0.02
+        });
+      }
+    }
+
+    function createParticle(tx, ty, theta, side) {
+      const fromTop = Math.random() < 0.5;
+      return {
+        x: tx + (Math.random()-0.5)*180,
+        y: fromTop ? -40 - Math.random()*h*0.25 : h + 40 + Math.random()*h*0.2,
+        tx, ty,
+        size: 4 + Math.random()*6,
+        alpha: 0.3 + Math.random()*0.6,
+        speed: 0.015 + Math.random()*0.03,
+        sway: 8 + Math.random()*16,
+        theta,
+        pulse: Math.random()*Math.PI*2,
+        side,
+      };
+    }
+
+    function drawBg(now) {
+      bgCtx.clearRect(0,0,w,h);
+      bgCtx.save();
+      for (const s of bgSymbols) {
+        s.y += s.v;
+        s.x += Math.sin(now*0.00035 + s.y*0.015) * s.drift;
+        if (s.y > h + 30) {
+          s.y = -20;
+          s.x = Math.random() * w;
+          s.c = chars[(Math.random() * chars.length) | 0];
+        }
+        bgCtx.font = `${s.s}px sans-serif`;
+        bgCtx.fillStyle = `rgba(255, 160, 200, ${s.a})`;
+        bgCtx.fillText(s.c, s.x, s.y);
+      }
+      for (const sp of sparkles) {
+        sp.tw += sp.v;
+        const a = 0.18 + Math.sin(sp.tw) * 0.16;
+        bgCtx.beginPath();
+        bgCtx.fillStyle = `rgba(255, 205, 225, ${a})`;
+        bgCtx.arc(sp.x, sp.y, sp.r, 0, Math.PI*2);
+        bgCtx.fill();
+      }
+      bgCtx.restore();
+    }
+
+    function drawLittleHeart(ctx, x, y, size, color, glow = true) {
+      ctx.save();
+      ctx.translate(x, y);
+      ctx.scale(size / 18, size / 18);
+      ctx.beginPath();
+      ctx.moveTo(0, 6);
+      ctx.bezierCurveTo(0, -2, -12, -2, -12, 6);
+      ctx.bezierCurveTo(-12, 12, -6, 15, 0, 20);
+      ctx.bezierCurveTo(6, 15, 12, 12, 12, 6);
+      ctx.bezierCurveTo(12, -2, 0, -2, 0, 6);
+      if (glow) {
+        ctx.shadowColor = color;
+        ctx.shadowBlur = 14;
+      }
+      ctx.fillStyle = color;
+      ctx.fill();
+      ctx.restore();
+    }
+
+    function drawHeart(now) {
+      heartCtx.clearRect(0,0,w,h);
+      heartCtx.save();
+      for (const p of particles) {
+        p.x += (p.tx - p.x) * p.speed;
+        p.y += (p.ty - p.y) * p.speed;
+        const jitterX = Math.sin(now*0.004 + p.theta*3 + p.pulse) * 1.4;
+        const jitterY = Math.cos(now*0.003 + p.theta*2 + p.pulse) * 1.4;
+        const size = p.size + Math.sin(now*0.005 + p.pulse) * 1.1;
+        const c = `rgba(255, ${145 + Math.sin(p.pulse+now*0.002)*30}, ${190 + Math.cos(p.pulse)*20}, ${p.alpha})`;
+        drawLittleHeart(heartCtx, p.x + jitterX, p.y + jitterY, size, c);
+      }
+
+      const beat = 1 + Math.sin(now * 0.0055) * 0.025;
+      heartCtx.globalCompositeOperation = 'lighter';
+      heartCtx.strokeStyle = 'rgba(255,170,210,0.24)';
+      heartCtx.lineWidth = 2.2;
+      [0.34, 0.66].forEach(cxRate => {
+        heartCtx.beginPath();
+        for (let i = 0; i <= 240; i++) {
+          const th = (i / 240) * Math.PI * 2;
+          const p = heartPoint(th, Math.min(w,h)*0.018*beat*0.95);
+          const x = w * cxRate + p.x;
+          const y = h * 0.57 + p.y;
+          if (i === 0) heartCtx.moveTo(x, y);
+          else heartCtx.lineTo(x, y);
+        }
+        heartCtx.closePath();
+        heartCtx.stroke();
+      });
+      heartCtx.globalCompositeOperation = 'source-over';
+
+      for (let i = clicks.length - 1; i >= 0; i--) {
+        const c = clicks[i];
+        c.life -= 1;
+        c.r += 0.9;
+        c.a *= 0.97;
+        for (let j = 0; j < 2; j++) {
+          drawLittleHeart(heartCtx, c.x + (Math.random()-0.5)*c.r, c.y + (Math.random()-0.5)*c.r, 5 + Math.random()*5, `rgba(255,175,210,${c.a})`, false);
+        }
+        if (c.life <= 0) clicks.splice(i, 1);
+      }
+      heartCtx.restore();
+    }
+
+    function animate(now) {
+      drawBg(now);
+      drawHeart(now);
+      requestAnimationFrame(animate);
+    }
+
+    function addBurst(x, y) {
+      clicks.push({ x, y, r: 2, a: 0.9, life: 42 });
+      for (let i = 0; i < 14; i++) {
+        clicks.push({
+          x: x + (Math.random()-0.5)*18,
+          y: y + (Math.random()-0.5)*18,
+          r: 1 + Math.random()*4,
+          a: 0.45 + Math.random()*0.45,
+          life: 22 + Math.random()*26
+        });
+      }
+    }
+
+    let audioCtx = null;
+    let masterGain = null;
+    let playing = false;
+    let melodyTimers = [];
+
+    function tone(freq, start, duration, type='sine', vol=0.03) {
+      const osc = audioCtx.createOscillator();
+      const gain = audioCtx.createGain();
+      osc.type = type;
+      osc.frequency.setValueAtTime(freq, start);
+      gain.gain.setValueAtTime(0.0001, start);
+      gain.gain.exponentialRampToValueAtTime(vol, start + 0.03);
+      gain.gain.exponentialRampToValueAtTime(0.0001, start + duration);
+      osc.connect(gain).connect(masterGain);
+      osc.start(start);
+      osc.stop(start + duration + 0.05);
+    }
+
+    function playPattern(startAt) {
+      const notes = [
+        392, 440, 523.25, 440,
+        392, 440, 587.33, 523.25,
+        440, 392, 349.23, 392,
+        440, 523.25, 440, 392
+      ];
+      const bass = [196, 196, 174.61, 174.61, 164.81, 164.81, 174.61, 174.61];
+      let t = startAt;
+      notes.forEach((n, i) => {
+        tone(n, t, 0.42, 'sine', 0.022);
+        if (i % 2 === 0) tone(n * 2, t, 0.18, 'triangle', 0.01);
+        t += 0.36;
+      });
+      let tb = startAt;
+      bass.forEach(n => {
+        tone(n, tb, 0.72, 'triangle', 0.015);
+        tb += 0.72;
+      });
+      return Math.max(t, tb);
+    }
+
+    function startMusic() {
+      if (playing) return;
+      audioCtx = new (window.AudioContext || window.webkitAudioContext)();
+      masterGain = audioCtx.createGain();
+      masterGain.gain.value = 0.9;
+      masterGain.connect(audioCtx.destination);
+      playing = true;
+      let startAt = audioCtx.currentTime + 0.08;
+      const loop = () => {
+        if (!playing) return;
+        startAt = playPattern(startAt + 0.04);
+        const delay = Math.max(1000, (startAt - audioCtx.currentTime - 0.4) * 1000);
+        const id = setTimeout(loop, delay);
+        melodyTimers.push(id);
+      };
+      loop();
+    }
+
+    function startShow() {
+      if (started) return;
+      started = true;
+      veil.classList.add('hide');
+      hint.textContent = '轻触任意位置，会绽放爱心';
+      startMusic();
+    }
+
+    window.addEventListener('pointerdown', (e) => {
+      startShow();
+      addBurst(e.clientX, e.clientY);
+    });
+    window.addEventListener('resize', resize);
+
+    resize();
+    requestAnimationFrame(animate);
+  </script>
+</body>
+</html>
