@@ -138,8 +138,8 @@
   const msg = document.getElementById('message');
   const musicList = [
   'Angel.mp3',
-  'love2.mp3',
-  'love3.mp3'
+  '告白气球.mp3',
+  '多幸运.mp3'
 ];
 
 let currentMusicIndex = 0;
@@ -433,11 +433,12 @@ muteBtn.addEventListener('click', (e) => {
   resize();
   requestAnimationFrame(animate);
 })();
+
+</script>
 <div class="music-controls">
   <button id="switchMusicBtn" class="music-btn" title="切换音乐">🎵</button>
   <button id="muteBtn" class="music-btn" title="静音/取消静音">🔊</button>
 </div>
-</script>
 <audio id="bgm" loop preload="auto"></audio>
 </body>
 </html>
