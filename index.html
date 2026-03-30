@@ -126,7 +126,13 @@
       </div>
     </div>
   </div>
+    </div>
 
+  <div class="music-controls">
+    <button id="switchMusicBtn" class="music-btn" title="切换音乐">🎵</button>
+    <button id="muteBtn" class="music-btn" title="静音/取消静音">🔊</button>
+  </div>
+ <audio id="bgm" loop preload="auto"></audio>
 <script>
 (() => {
   const bg = document.getElementById('bg');
@@ -435,10 +441,5 @@ muteBtn.addEventListener('click', (e) => {
 })();
 
 </script>
-<div class="music-controls">
-  <button id="switchMusicBtn" class="music-btn" title="切换音乐">🎵</button>
-  <button id="muteBtn" class="music-btn" title="静音/取消静音">🔊</button>
-</div>
-<audio id="bgm" loop preload="auto"></audio>
 </body>
 </html>
