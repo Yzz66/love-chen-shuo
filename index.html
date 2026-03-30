@@ -327,23 +327,9 @@
     osc.start(start); osc.stop(start+dur+.04);
   }
   function startMusic(){
-    if(playing) return;
-    audioCtx = new (window.AudioContext||window.webkitAudioContext)();
-    masterGain = audioCtx.createGain(); masterGain.gain.value = .95; masterGain.connect(audioCtx.destination);
-    playing = true;
-    let next = audioCtx.currentTime+.08;
-    const seq = () => {
-      if(!playing) return;
-      const m = [523.25,659.25,783.99,659.25,587.33,659.25,880,783.99,659.25,587.33,523.25,587.33];
-      const b = [196,196,220,220,174.61,174.61];
-      let t = next;
-      m.forEach((n,i)=>{ tone(n,t,.34,'sine',.02); if(i%2===0) tone(n*2,t,.16,'triangle',.008); t+=.28;});
-      let tb=next; b.forEach(n=>{ tone(n,tb,.64,'triangle',.013); tb+=.56; });
-      next = Math.max(t,tb)+.18;
-      setTimeout(seq, Math.max(900,(next-audioCtx.currentTime-.35)*1000));
-    };
-    seq();
-  }
+  const audio = document.getElementById('bgm');
+  audio.play().catch(()=>{});
+}
 
   function start(){
     if(started) return;
@@ -386,5 +372,8 @@
   requestAnimationFrame(animate);
 })();
 </script>
+<audio id="bgm" loop>
+  <source src="Angel.mp3" type="audio/mpeg">
+</audio>
 </body>
 </html>
