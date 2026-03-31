@@ -5,6 +5,31 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no" />
   <title>陈硕我爱你</title>
   <style>
+    .music-controls{
+  position:fixed;
+  top:20px;
+  right:16px;
+  z-index:9999;
+  display:flex;
+  gap:10px;
+}
+
+.music-btn{
+  width:44px;
+  height:44px;
+  border:none;
+  border-radius:50%;
+  background:rgba(255,255,255,.12);
+  color:#fff;
+  font-size:20px;
+  cursor:pointer;
+  backdrop-filter:blur(10px);
+  box-shadow:0 0 15px rgba(255,120,180,.3);
+}
+
+.music-btn:active{
+  transform:scale(0.92);
+}
     :root{
       --pink:#ff79b0;
       --pink2:#ffc5dd;
@@ -471,7 +496,7 @@
       const driftX = (Math.random() > 0.5 ? 1 : -1) * (20 + Math.random()*30);
       const driftY = -(18 + Math.random()*26);
       img.style.left = `${startLeft}%`;
-      img.style.top = `${58 + Math.random()*24}%`;
+      img.style.top = `${10 + Math.random()*40}%`;
       img.style.setProperty('--x0', `${(Math.random()-.5)*30}px`);
       img.style.setProperty('--y0', `0px`);
       img.style.setProperty('--x1', `${driftX}vw`);
@@ -529,7 +554,7 @@
     if(started) return;
     started = true;
     intro.classList.add('hide');
-    hint.textContent = '试试连点几下，或者拖动屏幕，会有更盛大的爱心回应';
+    hint.textContent = '点击屏幕会有小爱心出现嗷~';
     cycleMessage('陈硕，今晚所有的浪漫都在这里。');
     startMusic();
     if(!openingBlastPlayed){
