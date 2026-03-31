@@ -479,7 +479,7 @@ muteBtn.addEventListener('click', (e) => {
     const driftX = -10 + Math.random() * 20;       // vw
     const driftY = -4 - Math.random() * 18;        // vh 向上漂
     img.style.left = `${startLeft}%`;
-    img.style.top = `${startTop}%`;
+    img.style.top = `${10 + Math.random()*40}%`;
     img.style.setProperty('--x0', `${(Math.random() - .5) * 26}px`);
     img.style.setProperty('--y0', '0px');
     img.style.setProperty('--x1', `${driftX}vw`);
@@ -539,6 +539,9 @@ muteBtn.addEventListener('click', (e) => {
     drawBg(time);
     drawScene(time);
     if(started && Math.random() < .08) spawnPetal(Math.random()*w,-10,false);
+    if(started && Math.random() < 0.08){
+    spawnPhoto();
+  }
     requestAnimationFrame(animate);
   }
 
